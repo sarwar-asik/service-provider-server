@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const { ObjectID } = require("bson");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -24,31 +25,41 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-  const servicesCollection = client
-    .db("sh-traveldb")
-    .collection("add-services");
+  try {
+    const servicesCollection = client
+      .db("sh-traveldb")
+      .collection("add-services");
 
-  app.post("/addServices", async (req, res) => {
-    const services = req.body;
-    // console.log(services);
-    const result = await servicesCollection.insertOne(services);
+    app.post("/addServices", async (req, res) => {
+      const services = req.body;
+      // console.log(services);
+      const result = await servicesCollection.insertOne(services);
 
-    res.send(result);
-  });
+      res.send(result);
+    });
 
-  app.get("/serviceslimit", async (req, res) => {
-    const query = {};
-    const cursor = servicesCollection.find(query);
-    const services = await cursor.limit(3).toArray();
-    res.send(services);
-  });
+    app.get("/serviceslimit", async (req, res) => {
+      const query = {};
+      const cursor = servicesCollection.find(query);
+      const services = await cursor.limit(3).toArray();
+      res.send(services);
+    });
 
-  app.get("/services", async (req, res) => {
-    const query = {};
-    const cursor = servicesCollection.find(query);
-    const services = await cursor.toArray();
-    res.send(services);
-  });
+    app.get("/services", async (req, res) => {
+      const query = {};
+      const cursor = servicesCollection.find(query);
+      const services = await cursor.toArray();
+      res.send(services);
+    });
+
+    app.get("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectID(id) };
+      const service = await servicesCollection.findOne(query);
+      res.send(service);
+    });
+  } finally {
+  }
 }
 
 run().catch((err) => console.log(err));
