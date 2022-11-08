@@ -58,6 +58,29 @@ async function run() {
       const service = await servicesCollection.findOne(query);
       res.send(service);
     });
+
+    app.put("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectID(id) };
+      const newReview = req.body.reviews;
+      const service = req.body.service;
+
+      const option = { upsert: true };
+
+      console.log(service);
+
+      const addReview = {
+        $set: {
+          reviews: [newReview,...service.reviews],
+        },
+      };
+      const result = await servicesCollection.updateOne(
+        filter,
+        addReview,
+        option
+      );
+      res.send(result);
+    });
   } finally {
   }
 }
