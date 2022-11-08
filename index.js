@@ -16,7 +16,6 @@ app.get("/", (req, res) => {
 });
 
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.ysfeeva.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -35,6 +34,13 @@ async function run() {
     const result = await servicesCollection.insertOne(services);
 
     res.send(result);
+  });
+
+  app.get("/serviceslimit", async (req, res) => {
+    const query = {};
+    const cursor = servicesCollection.find(query);
+    const services = await cursor.limit(3).toArray();
+    res.send(services);
   });
 
   app.get("/services", async (req, res) => {
