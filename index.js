@@ -30,9 +30,10 @@ async function run() {
       .db("sh-traveldb")
       .collection("add-services");
 
+    const reviewCollection = client.db("sh-traveldb").collection("add-review");
+
     app.post("/addServices", async (req, res) => {
       const services = req.body;
-      // console.log(services);
       const result = await servicesCollection.insertOne(services);
 
       res.send(result);
@@ -55,6 +56,7 @@ async function run() {
     app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectID(id) };
+      console.log(query, "form services....");
       const service = await servicesCollection.findOne(query);
       res.send(service);
     });
@@ -67,11 +69,9 @@ async function run() {
 
       const option = { upsert: true };
 
-      console.log(service);
-
       const addReview = {
         $set: {
-          reviews: [newReview,...service.reviews],
+          reviews: [newReview, ...service.reviews],
         },
       };
       const result = await servicesCollection.updateOne(
@@ -80,6 +80,23 @@ async function run() {
         option
       );
       res.send(result);
+    });
+
+    // for review addd /////
+    app.post("/addreviews", async (req, res) => {
+      const review = req.body;
+      const result = await reviewCollection.insertOne(review);
+      res.send(result);
+    });
+
+
+    // get review by service  id ////
+    app.get("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { id: id };
+      const cursor = reviewCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
     });
   } finally {
   }
