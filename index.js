@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
+
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const { ObjectID } = require("bson");
@@ -31,6 +33,19 @@ async function run() {
       .collection("add-services");
 
     const reviewCollection = client.db("sh-traveldb").collection("add-review");
+
+    ////FOR JWT TOKEN///
+
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const token = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {
+        expiresIn: "7d",
+      });
+
+      console.log("new token ...", token);
+      res.send(token);
+    });
 
     app.post("/addServices", async (req, res) => {
       const services = req.body;
@@ -89,11 +104,18 @@ async function run() {
       res.send(result);
     });
 
-
     // get review by service  id ////
     app.get("/reviews/:id", async (req, res) => {
       const id = req.params.id;
       const query = { id: id };
+      const cursor = reviewCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+
+    app.get("/reviews", async (req, res) => {
+      const id = req.params.id;
+      const query = {};
       const cursor = reviewCollection.find(query);
       const reviews = await cursor.toArray();
       res.send(reviews);
