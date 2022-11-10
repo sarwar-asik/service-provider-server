@@ -37,20 +37,14 @@ async function run() {
     ////FOR JWT TOKEN///
 
     app.post("/jwt", (req, res) => {
-
-
       const user = req.body;
       console.log(user);
       const token = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {
         expiresIn: "7d",
-
-
       });
 
       console.log("new token ...", token);
-      res.send({token});
-
-
+      res.send({ token });
     });
 
     app.post("/addServices", async (req, res) => {
@@ -77,7 +71,6 @@ async function run() {
     app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectID(id) };
-      console.log(query, "form services....");
       const service = await servicesCollection.findOne(query);
       res.send(service);
     });
@@ -131,24 +124,48 @@ async function run() {
       res.send(reviews);
     });
 
+    app.delete("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectID(id) };
+      const result = await reviewCollection.deleteOne(query);
+      console.log(id);
+      res.send(result);
+    });
 
+    // for search a review ///
+    app.get("/review/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectID(id) };
+      const reviews = await reviewCollection.findOne(query);
+      res.send(reviews);
+    });
 
-app.delete('/reviews/:id',async(req,res)=>{
-const id = req.params.id;
-const query = {_id:ObjectID(id)}
-const result = await reviewCollection.deleteOne(query)
-console.log(id);
-res.send(result)
-})
+    // for update review //
 
-app.put('/reviews/:id' ,async(req,res)=>{
+    app.put("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectID(id) };
+      const reviews = req.body;
 
-const id = req.params.id
-const filter = {_id: ObjectID(id)}
+      // console.log(reviews);
 
+      const option = { upsert: true };
+      const updatedReview = {
+        $set: {
+          photo: reviews.img,
+          review: reviews.rev,
+        },
+      };
 
-})
+      const result = await reviewCollection.updateOne(
+        filter,
+        updatedReview,
+        option
+      );
 
+      res.send(result)
+
+    });
   } finally {
   }
 }
