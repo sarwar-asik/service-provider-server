@@ -37,14 +37,20 @@ async function run() {
     ////FOR JWT TOKEN///
 
     app.post("/jwt", (req, res) => {
+
+
       const user = req.body;
       console.log(user);
       const token = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {
         expiresIn: "7d",
+
+
       });
 
       console.log("new token ...", token);
-      res.send(token);
+      res.send({token});
+
+
     });
 
     app.post("/addServices", async (req, res) => {
@@ -114,12 +120,35 @@ async function run() {
     });
 
     app.get("/reviews", async (req, res) => {
-      const id = req.params.id;
-      const query = {};
+      let query = {};
+      if (req.query.email) {
+        query = {
+          email: req.query.email,
+        };
+      }
       const cursor = reviewCollection.find(query);
       const reviews = await cursor.toArray();
       res.send(reviews);
     });
+
+
+
+app.delete('/reviews/:id',async(req,res)=>{
+const id = req.params.id;
+const query = {_id:ObjectID(id)}
+const result = await reviewCollection.deleteOne(query)
+console.log(id);
+res.send(result)
+})
+
+app.put('/reviews/:id' ,async(req,res)=>{
+
+const id = req.params.id
+const filter = {_id: ObjectID(id)}
+
+
+})
+
   } finally {
   }
 }
