@@ -8,4 +8,4 @@
   
   ##Live  site link (https://sh-travel-service.web.app/)
   
-  ## client site repposit ( https://github.com/Porgramming-Hero-web-course/b6a11-service-review-client-side-sarwar-asik/blob/main/README.md )
+  ## client site repposit ( https://github.com/sarwar-asik/service-provider-projects/blob/main/README.md)
